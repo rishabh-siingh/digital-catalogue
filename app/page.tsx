@@ -17,6 +17,7 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [desktopSidebarOpen, setDesktopSidebarOpen] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
 
   const loadAll = useCallback(async () => {
@@ -104,7 +105,7 @@ export default function Home() {
 
   if (loading) {
     return (
-      <div className="flex h-screen w-full items-center justify-center bg-paper">
+      <div className="flex h-screen w-full items-center justify-center bg-marble-100">
         <Loader2 className="h-5 w-5 animate-spin text-accent" />
       </div>
     );
@@ -112,7 +113,7 @@ export default function Home() {
 
   if (error) {
     return (
-      <div className="flex h-screen w-full flex-col items-center justify-center gap-3 bg-paper px-6 text-center">
+      <div className="flex h-screen w-full flex-col items-center justify-center gap-3 bg-marble-100 px-6 text-center">
         <AlertTriangle className="h-6 w-6 text-red-500" />
         <p className="max-w-sm text-[14px] text-ink-600">
           Couldn&apos;t connect to Supabase. Check that <code className="rounded bg-ink-100 px-1.5 py-0.5 font-mono text-[12.5px]">.env.local</code> has your project URL and anon key, then restart the dev server.
@@ -123,7 +124,7 @@ export default function Home() {
   }
 
   return (
-    <div className="flex h-screen w-full overflow-hidden bg-paper">
+    <div className="flex h-screen w-full overflow-hidden bg-marble-100">
       <Sidebar
         categories={categories}
         activeId={activeCategoryId}
@@ -132,6 +133,8 @@ export default function Home() {
         counts={counts}
         mobileOpen={mobileMenuOpen}
         onCloseMobile={() => setMobileMenuOpen(false)}
+        desktopOpen={desktopSidebarOpen}
+        onCloseDesktop={() => setDesktopSidebarOpen(false)}
       />
       <div className="flex min-w-0 flex-1 flex-col overflow-hidden">
         <Header
@@ -139,6 +142,8 @@ export default function Home() {
           entryCount={categoryProducts.length}
           mobileMenuOpen={mobileMenuOpen}
           onToggleMobileMenu={() => setMobileMenuOpen((v) => !v)}
+          desktopSidebarOpen={desktopSidebarOpen}
+          onToggleDesktopSidebar={() => setDesktopSidebarOpen((v) => !v)}
           searchQuery={searchQuery}
           onSearchChange={setSearchQuery}
           onAddEntry={handleAddProduct}
