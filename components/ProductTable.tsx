@@ -1,7 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
-import { Plus, Info, ExternalLink, Link2, ChevronDown, ArrowUpAZ, ArrowDownAZ, ArrowUp01, ArrowDown01, Check } from "lucide-react";
+import { Plus, Info, ExternalLink, Link2, ChevronDown, ArrowUpAZ, ArrowDownAZ, ArrowUp01, ArrowDown01 } from "lucide-react";
 import type { Product } from "@/lib/types";
 import { PLATFORM_OPTIONS, getFaviconUrl, getPlatformColor } from "@/lib/types";
 
@@ -18,7 +18,7 @@ type SortDir = "asc" | "desc";
 
 const COLUMN_CONFIG: { key: SortField; label: string; sortable: boolean; width?: string }[] = [
   { key: "title", label: "Title", sortable: true },
-  { key: null, label: "URL", sortable: false, width: "w-[120px]" },
+  { key: null, label: "URL", sortable: false, width: "w-[150px]" },
   { key: "platform", label: "Platform", sortable: true },
   { key: null, label: "Visit", sortable: false },
   { key: "date_added", label: "Date Added", sortable: true },
@@ -161,7 +161,7 @@ function PlatformCell({ product, onUpdate }: { product: Product; onUpdate: (id: 
           }}
           onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
           placeholder="Type platform…"
-          className="w-[110px] rounded border border-accent/40 bg-accent-light px-1.5 py-1 text-[12.5px] text-accent-dark focus:border-accent"
+          className="w-[100px] rounded border border-accent/40 bg-accent-light px-1.5 py-1 text-[13px] text-accent-dark focus:border-accent"
         />
       ) : (
         <select
@@ -173,7 +173,7 @@ function PlatformCell({ product, onUpdate }: { product: Product; onUpdate: (id: 
               : ""
           }
           onChange={(e) => handleSelectChange(e.target.value)}
-          className="rounded border border-transparent bg-transparent py-1 text-ink-700 hover:border-ink-200 focus:border-accent focus:bg-white"
+          className="rounded border border-transparent bg-transparent px-1.5 py-1 text-[13px] text-ink-700 hover:border-ink-200 focus:border-accent focus:bg-white"
         >
           <option value="">—</option>
           {PLATFORM_OPTIONS.map((o) => (
@@ -191,7 +191,6 @@ function PlatformCell({ product, onUpdate }: { product: Product; onUpdate: (id: 
 
 export default function ProductTable({ products, searchQuery, onAdd, onUpdate, onOpenInfo }: ProductTableProps) {
   const [sort, setSort] = useState<{ field: SortField; dir: SortDir }>({ field: null, dir: "asc" });
-  const [urlBoxOpenId, setUrlBoxOpenId] = useState<string | null>(null);
 
   const filtered = useMemo(() => {
     let list = searchQuery.trim()
@@ -266,7 +265,6 @@ export default function ProductTable({ products, searchQuery, onAdd, onUpdate, o
             <tbody>
               {filtered.map((p, idx) => {
                 const platformColor = getPlatformColor(p.platform);
-                const urlBoxOpen = urlBoxOpenId === p.id;
                 return (
                   <tr
                     key={p.id}
@@ -283,51 +281,15 @@ export default function ProductTable({ products, searchQuery, onAdd, onUpdate, o
                       />
                     </td>
 
-                    {/* URL — compact, own column, popover editor to keep width small */}
-                    <td className="w-[120px] border-b border-ink-100 px-3 py-2.5">
-                      <div className="relative">
-                        <button
-                          onClick={() => setUrlBoxOpenId(urlBoxOpen ? null : p.id)}
-                          className={`flex items-center gap-1 rounded px-1.5 py-1 text-[11.5px] transition-colors ${
-                            p.url ? "text-accent hover:bg-accent-light" : "text-ink-400 hover:bg-ink-100"
-                          }`}
-                        >
-                          <Link2 className="h-3 w-3 shrink-0" />
-                          {p.url ? "Edit" : "Add"}
-                        </button>
-
-                        {urlBoxOpen && (
-                          <>
-                            <div className="fixed inset-0 z-20" onClick={() => setUrlBoxOpenId(null)} />
-                            <div
-                              className="fade-in absolute left-0 top-full z-30 mt-1 w-64 rounded-lg border border-ink-100 bg-white p-2 shadow-pop"
-                              onClick={(e) => e.stopPropagation()}
-                            >
-                              <div className="flex items-center gap-1.5">
-                                <input
-                                  autoFocus
-                                  defaultValue={p.url}
-                                  onBlur={(e) => onUpdate(p.id, "url", e.target.value)}
-                                  onKeyDown={(e) => {
-                                    if (e.key === "Enter") {
-                                      onUpdate(p.id, "url", (e.target as HTMLInputElement).value);
-                                      setUrlBoxOpenId(null);
-                                    }
-                                  }}
-                                  placeholder="https://…"
-                                  className="w-full min-w-0 rounded border border-ink-200 bg-marble-50 px-2 py-1.5 font-mono text-[11.5px] text-ink-800 focus:border-accent"
-                                />
-                                <button
-                                  onClick={() => setUrlBoxOpenId(null)}
-                                  className="shrink-0 rounded bg-accent p-1.5 text-paper hover:bg-accent-dark"
-                                >
-                                  <Check className="h-3 w-3" />
-                                </button>
-                              </div>
-                            </div>
-                          </>
-                        )}
-                      </div>
+                    {/* URL — inline input, same behavior as Title: click, type, blur/Enter to save */}
+                    <td className="w-[150px] border-b border-ink-100 px-3 py-2.5">
+                      <input
+                        defaultValue={p.url}
+                        onBlur={(e) => onUpdate(p.id, "url", e.target.value)}
+                        onKeyDown={(e) => e.key === "Enter" && (e.target as HTMLInputElement).blur()}
+                        placeholder="Add URL…"
+                        className="w-full truncate rounded border border-transparent bg-transparent px-1.5 py-1 font-mono text-[12px] text-accent hover:border-ink-200 focus:border-accent focus:bg-white"
+                      />
                     </td>
 
                     {/* Platform + favicon, with custom text input option */}
