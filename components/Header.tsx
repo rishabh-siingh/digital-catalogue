@@ -8,6 +8,8 @@ interface HeaderProps {
   entryCount: number;
   mobileMenuOpen: boolean;
   onToggleMobileMenu: () => void;
+  desktopSidebarOpen: boolean;
+  onToggleDesktopSidebar: () => void;
   searchQuery: string;
   onSearchChange: (q: string) => void;
   onAddEntry: () => void;
@@ -18,6 +20,8 @@ export default function Header({
   entryCount,
   mobileMenuOpen,
   onToggleMobileMenu,
+  desktopSidebarOpen,
+  onToggleDesktopSidebar,
   searchQuery,
   onSearchChange,
   onAddEntry,
@@ -39,7 +43,7 @@ export default function Header({
   };
 
   return (
-    <header className="sticky top-0 z-30 border-b border-ink-100/80 bg-paper/75 backdrop-blur-xl backdrop-saturate-150 shadow-glass">
+    <header className="sticky top-0 z-30 border-b border-white/60 bg-marble-50/70 backdrop-blur-xl backdrop-saturate-150 shadow-header">
       <div className="flex h-16 items-center gap-2 px-3 md:h-[70px] md:gap-4 md:px-8">
         {/* Hamburger — mobile only, fixed small footprint, hidden while search is open */}
         {!mobileSearchOpen && (
@@ -56,6 +60,18 @@ export default function Header({
           </button>
         )}
 
+        {/* Desktop hamburger — only shows once sidebar is collapsed */}
+        {!desktopSidebarOpen && (
+          <button
+            onClick={onToggleDesktopSidebar}
+            className="hidden h-10 w-10 shrink-0 items-center justify-center rounded-lg text-ink-600 transition-colors hover:bg-ink-100 active:scale-95 md:flex"
+            aria-label="Open sidebar"
+            title="Open sidebar"
+          >
+            <Menu className="h-5 w-5" strokeWidth={2} />
+          </button>
+        )}
+
         {/* ===== MOBILE: title OR expanded search, mutually exclusive ===== */}
         <div className="flex min-w-0 flex-1 items-center md:hidden">
           {!mobileSearchOpen ? (
@@ -68,7 +84,7 @@ export default function Header({
               </p>
             </div>
           ) : (
-            <div className="fade-in flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-ink-200 bg-white px-3 py-2 shadow-sm">
+            <div className="fade-in flex min-w-0 flex-1 items-center gap-2 rounded-lg border border-white/80 bg-white/80 px-3 py-2 shadow-sm backdrop-blur-sm">
               <Search className="h-4 w-4 shrink-0 text-ink-400" strokeWidth={2} />
               <input
                 ref={mobileInputRef}
@@ -115,7 +131,7 @@ export default function Header({
           </p>
         </div>
 
-        <div className="hidden shrink-0 md:flex md:w-[280px] md:items-center md:gap-2 md:rounded-lg md:border md:border-ink-200 md:bg-white/80 md:px-3 md:py-2.5 md:shadow-sm md:transition-colors md:focus-within:border-accent">
+        <div className="hidden shrink-0 md:flex md:w-[280px] md:items-center md:gap-2 md:rounded-lg md:border md:border-white/80 md:bg-white/70 md:px-3 md:py-2.5 md:shadow-sm md:backdrop-blur-sm md:transition-colors md:focus-within:border-accent md:focus-within:bg-white">
           <Search className="h-4 w-4 shrink-0 text-ink-400" strokeWidth={2} />
           <input
             ref={desktopInputRef}
