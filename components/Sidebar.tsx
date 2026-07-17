@@ -58,13 +58,6 @@ export default function Sidebar({ categories, activeId, onSelect, onAddCategory,
           <span className="font-display text-[15px] font-medium tracking-tight text-ink-900">Catalogue</span>
           <span className="mt-0.5 text-[10.5px] uppercase tracking-[0.14em] text-ink-400">Digital Index</span>
         </div>
-        <button
-          onClick={() => setMobileOpen(false)}
-          className="ml-auto rounded p-1.5 text-ink-400 hover:bg-ink-100 hover:text-ink-700 md:hidden"
-          aria-label="Close menu"
-        >
-          <X className="h-4 w-4" />
-        </button>
       </div>
 
       <div className="mx-5 mb-2 h-px bg-ink-100" />
@@ -164,13 +157,17 @@ export default function Sidebar({ categories, activeId, onSelect, onAddCategory,
 
   return (
     <>
-      {/* Mobile hamburger trigger */}
+      {/* Mobile hamburger / close trigger — stays in the same spot either way */}
       <button
-        onClick={() => setMobileOpen(true)}
-        className="fixed left-4 top-4 z-30 flex h-10 w-10 items-center justify-center rounded-md border border-ink-200 bg-paper shadow-panel md:hidden"
-        aria-label="Open menu"
+        onClick={() => setMobileOpen((v) => !v)}
+        className="fixed left-4 top-4 z-50 flex h-10 w-10 items-center justify-center rounded-md border border-ink-200 bg-paper shadow-panel md:hidden"
+        aria-label={mobileOpen ? "Close menu" : "Open menu"}
       >
-        <Menu className="h-5 w-5 text-ink-700" />
+        {mobileOpen ? (
+          <X className="h-5 w-5 text-ink-700" />
+        ) : (
+          <Menu className="h-5 w-5 text-ink-700" />
+        )}
       </button>
 
       {/* Desktop persistent sidebar */}
