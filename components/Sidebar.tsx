@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import * as Icons from "lucide-react";
-import { Plus, Library } from "lucide-react";
+import { Plus, Library, ArrowLeftFromLine } from "lucide-react";
 import type { Category } from "@/lib/types";
 
 function CategoryIcon({ name, className }: { name: string; className?: string }) {
@@ -18,6 +18,8 @@ interface SidebarProps {
   counts: Record<string, number>;
   mobileOpen: boolean;
   onCloseMobile: () => void;
+  desktopOpen: boolean;
+  onCloseDesktop: () => void;
 }
 
 const ICON_CHOICES = [
@@ -34,6 +36,8 @@ export default function Sidebar({
   counts,
   mobileOpen,
   onCloseMobile,
+  desktopOpen,
+  onCloseDesktop,
 }: SidebarProps) {
   const [addingOpen, setAddingOpen] = useState(false);
   const [newName, setNewName] = useState("");
@@ -67,6 +71,14 @@ export default function Sidebar({
           <span className="font-display text-[15px] font-medium tracking-tight text-ink-900">Catalogue</span>
           <span className="mt-0.5 text-[10.5px] uppercase tracking-[0.14em] text-ink-400">Digital Index</span>
         </div>
+        <button
+          onClick={onCloseDesktop}
+          className="ml-auto hidden h-7 w-7 shrink-0 items-center justify-center rounded-md text-ink-400 transition-colors hover:bg-ink-100 hover:text-ink-700 md:flex"
+          aria-label="Collapse sidebar"
+          title="Collapse sidebar"
+        >
+          <ArrowLeftFromLine className="h-4 w-4" strokeWidth={1.9} />
+        </button>
       </div>
 
       <div className="mx-5 mb-2 h-px bg-ink-100" />
@@ -166,9 +178,13 @@ export default function Sidebar({
 
   return (
     <>
-      {/* Desktop persistent sidebar */}
-      <aside className="hidden w-[260px] shrink-0 border-r border-ink-100 bg-ink-50/60 md:flex">
-        {sidebarContent}
+      {/* Desktop persistent sidebar — collapsible */}
+      <aside
+        className={`hidden shrink-0 overflow-hidden border-r border-ink-100 bg-marble-50/70 backdrop-blur-sm transition-[width] duration-200 ease-out md:flex ${
+          desktopOpen ? "w-[260px]" : "w-0 border-r-0"
+        }`}
+      >
+        <div className="w-[260px] shrink-0">{sidebarContent}</div>
       </aside>
 
       {/* Mobile drawer */}
@@ -178,7 +194,7 @@ export default function Sidebar({
             className="fade-in absolute inset-0 bg-ink-950/40 backdrop-blur-[2px]"
             onClick={onCloseMobile}
           />
-          <aside className="panel-in absolute left-0 top-0 h-full w-[280px] bg-paper shadow-pop">
+          <aside className="panel-in absolute left-0 top-0 h-full w-[280px] bg-marble-50 shadow-pop">
             {sidebarContent}
           </aside>
         </div>
