@@ -1,2 +1,0 @@
-# digital-catalogue
-Digital assets
