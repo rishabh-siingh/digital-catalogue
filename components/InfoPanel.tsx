@@ -23,7 +23,7 @@ export default function InfoPanel({ product, categoryName, onClose, onDelete, on
   return (
     <div className="fixed inset-0 z-50">
       <div className="fade-in absolute inset-0 bg-ink-950/30 backdrop-blur-[2px]" onClick={onClose} />
-      <aside className="panel-in absolute right-0 top-0 flex h-full w-full max-w-[420px] flex-col border-l border-ink-200 bg-paper/95 backdrop-blur-xl shadow-pop">
+      <aside className="panel-in absolute right-0 top-0 flex h-full w-full max-w-[420px] flex-col border-l border-white bg-marble-50/95 backdrop-blur-xl shadow-pop">
         {/* Header */}
         <div className="flex items-start justify-between gap-3 border-b border-ink-100 px-6 py-5">
           <div>
