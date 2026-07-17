@@ -43,6 +43,14 @@ body {
   border-radius: 2px;
 }
 
+/* Inline table cell inputs/selects already show their own border on focus
+   (focus:border-accent) — suppress the extra outline ring here so only
+   a single border line is visible instead of two overlapping lines. */
+td input:focus-visible,
+td select:focus-visible {
+  outline: none;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
