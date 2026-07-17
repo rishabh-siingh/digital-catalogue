@@ -13,13 +13,13 @@ interface ProductTableProps {
   onOpenInfo: (product: Product) => void;
 }
 
-type SortField = "title" | "platform" | "date_added" | null;
+type SortField = "title" | "date_added" | null;
 type SortDir = "asc" | "desc";
 
 const COLUMN_CONFIG: { key: SortField; label: string; sortable: boolean; width?: string }[] = [
   { key: "title", label: "Title", sortable: true },
   { key: null, label: "URL", sortable: false, width: "w-[150px]" },
-  { key: "platform", label: "Platform", sortable: true },
+  { key: null, label: "Platform", sortable: false },
   { key: null, label: "Visit", sortable: false },
   { key: "date_added", label: "Date Added", sortable: true },
 ];
@@ -85,7 +85,6 @@ function ColumnHeader({
 
         {open && (
           <>
-            {/* Transparent click-catcher to close on outside click — placed BEHIND the menu in z-order and not intercepting menu clicks */}
             <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
             <div
               className="fade-in absolute left-0 top-full z-30 mt-1 w-44 overflow-hidden rounded-lg border border-ink-100 bg-white shadow-pop"
@@ -125,6 +124,71 @@ function ColumnHeader({
                     <ArrowDownAZ className="h-3.5 w-3.5" /> Sort Z → A
                   </button>
                 </>
+              )}
+            </div>
+          </>
+        )}
+      </div>
+    </th>
+  );
+}
+
+function PlatformFilterHeader({
+  platforms,
+  activeFilter,
+  onFilter,
+}: {
+  platforms: string[];
+  activeFilter: string | null;
+  onFilter: (platform: string | null) => void;
+}) {
+  const [open, setOpen] = useState(false);
+
+  return (
+    <th className="sticky top-0 z-10 border-b border-ink-200 bg-marble-100/90 px-3 py-2.5 text-left text-[10.5px] font-semibold uppercase tracking-[0.1em] text-ink-400 backdrop-blur-sm">
+      <div className="relative">
+        <button
+          type="button"
+          onClick={() => setOpen((v) => !v)}
+          className={`flex items-center gap-1 rounded px-1 py-0.5 transition-colors hover:bg-ink-100 hover:text-ink-700 ${
+            activeFilter ? "text-accent" : ""
+          }`}
+        >
+          Platform
+          <ChevronDown className="h-3 w-3" strokeWidth={2.5} />
+        </button>
+
+        {open && (
+          <>
+            <div className="fixed inset-0 z-20" onClick={() => setOpen(false)} />
+            <div
+              className="fade-in absolute left-0 top-full z-30 mt-1 max-h-64 w-48 overflow-y-auto rounded-lg border border-ink-100 bg-white shadow-pop"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <button
+                type="button"
+                onClick={() => { onFilter(null); setOpen(false); }}
+                className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] font-normal normal-case tracking-normal hover:bg-accent-light hover:text-accent-dark ${
+                  !activeFilter ? "bg-accent-light text-accent-dark" : "text-ink-700"
+                }`}
+              >
+                All platforms
+              </button>
+              {platforms.length === 0 ? (
+                <p className="px-3 py-2 text-[12px] text-ink-400">No platforms added yet</p>
+              ) : (
+                platforms.map((plat) => (
+                  <button
+                    key={plat}
+                    type="button"
+                    onClick={() => { onFilter(plat); setOpen(false); }}
+                    className={`flex w-full items-center gap-2 px-3 py-2 text-left text-[12.5px] font-normal normal-case tracking-normal hover:bg-accent-light hover:text-accent-dark ${
+                      activeFilter === plat ? "bg-accent-light text-accent-dark" : "text-ink-700"
+                    }`}
+                  >
+                    {plat}
+                  </button>
+                ))
               )}
             </div>
           </>
@@ -191,6 +255,15 @@ function PlatformCell({ product, onUpdate }: { product: Product; onUpdate: (id: 
 
 export default function ProductTable({ products, searchQuery, onAdd, onUpdate, onOpenInfo }: ProductTableProps) {
   const [sort, setSort] = useState<{ field: SortField; dir: SortDir }>({ field: null, dir: "asc" });
+  const [platformFilter, setPlatformFilter] = useState<string | null>(null);
+
+  const distinctPlatforms = useMemo(() => {
+    const set = new Set<string>();
+    products.forEach((p) => {
+      if (p.platform && p.platform.trim()) set.add(p.platform.trim());
+    });
+    return Array.from(set).sort((a, b) => a.localeCompare(b));
+  }, [products]);
 
   const filtered = useMemo(() => {
     let list = searchQuery.trim()
@@ -201,29 +274,32 @@ export default function ProductTable({ products, searchQuery, onAdd, onUpdate, o
         )
       : products;
 
+    if (platformFilter) {
+      list = list.filter((p) => p.platform === platformFilter);
+    }
+
     if (sort.field) {
       const field = sort.field;
       list = [...list].sort((a, b) => {
-        let av: string;
-        let bv: string;
         if (field === "date_added") {
-          // Compare as actual dates, not strings, so sorting is correct
-          av = a.date_added || "";
-          bv = b.date_added || "";
-          const at = new Date(av).getTime();
-          const bt = new Date(bv).getTime();
+          const at = new Date(a.date_added || 0).getTime();
+          const bt = new Date(b.date_added || 0).getTime();
           if (at !== bt) return sort.dir === "asc" ? at - bt : bt - at;
-          return 0;
+          // Same calendar date — break the tie using the precise creation
+          // timestamp so same-day entries still order sensibly.
+          const act = new Date(a.created_at || 0).getTime();
+          const bct = new Date(b.created_at || 0).getTime();
+          return sort.dir === "asc" ? act - bct : bct - act;
         }
-        av = (a[field] || "").toString().toLowerCase();
-        bv = (b[field] || "").toString().toLowerCase();
+        const av = (a[field] || "").toString().toLowerCase();
+        const bv = (b[field] || "").toString().toLowerCase();
         if (av < bv) return sort.dir === "asc" ? -1 : 1;
         if (av > bv) return sort.dir === "asc" ? 1 : -1;
         return 0;
       });
     }
     return list;
-  }, [products, searchQuery, sort]);
+  }, [products, searchQuery, sort, platformFilter]);
 
   const handleSort = (field: SortField, dir: SortDir) => setSort({ field, dir });
 
@@ -232,7 +308,11 @@ export default function ProductTable({ products, searchQuery, onAdd, onUpdate, o
       {filtered.length === 0 ? (
         <div className="flex flex-col items-center justify-center gap-3 py-24 text-center">
           <p className="font-display text-[17px] text-ink-500">
-            {products.length === 0 ? "No entries yet" : "Nothing matches your search"}
+            {products.length === 0
+              ? "No entries yet"
+              : platformFilter
+              ? `No entries for "${platformFilter}"`
+              : "Nothing matches your search"}
           </p>
           {products.length === 0 && (
             <button
@@ -248,17 +328,26 @@ export default function ProductTable({ products, searchQuery, onAdd, onUpdate, o
           <table className="w-full min-w-[820px] border-separate border-spacing-0 text-[13px]">
             <thead>
               <tr>
-                {COLUMN_CONFIG.map((col) => (
-                  <ColumnHeader
-                    key={col.label}
-                    label={col.label}
-                    field={col.key}
-                    sortable={col.sortable}
-                    width={col.width}
-                    activeSort={sort}
-                    onSort={handleSort}
-                  />
-                ))}
+                {COLUMN_CONFIG.map((col) =>
+                  col.label === "Platform" ? (
+                    <PlatformFilterHeader
+                      key={col.label}
+                      platforms={distinctPlatforms}
+                      activeFilter={platformFilter}
+                      onFilter={setPlatformFilter}
+                    />
+                  ) : (
+                    <ColumnHeader
+                      key={col.label}
+                      label={col.label}
+                      field={col.key}
+                      sortable={col.sortable}
+                      width={col.width}
+                      activeSort={sort}
+                      onSort={handleSort}
+                    />
+                  )
+                )}
                 <th className="sticky top-0 z-10 border-b border-ink-200 bg-marble-100/90 px-3 py-2.5 backdrop-blur-sm" />
               </tr>
             </thead>
