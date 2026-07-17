@@ -1,0 +1,93 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+* {
+  border-color: theme("colors.ink.100");
+}
+
+html {
+  -webkit-font-smoothing: antialiased;
+}
+
+body {
+  background: theme("colors.paper");
+  color: theme("colors.ink.900");
+}
+
+::selection {
+  background: theme("colors.accent.light");
+  color: theme("colors.accent.dark");
+}
+
+/* Custom scrollbar - thin, quiet */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: theme("colors.ink.200");
+  border-radius: 8px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: theme("colors.ink.300");
+}
+
+/* Focus visibility - accessible, on-brand */
+:focus-visible {
+  outline: 2px solid theme("colors.accent.DEFAULT");
+  outline-offset: 2px;
+  border-radius: 2px;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* Table row entrance */
+@keyframes rowIn {
+  from {
+    opacity: 0;
+    transform: translateY(3px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.row-in {
+  animation: rowIn 0.22s ease-out both;
+}
+
+/* Slide-in panel */
+@keyframes slideIn {
+  from {
+    transform: translateX(16px);
+    opacity: 0;
+  }
+  to {
+    transform: translateX(0);
+    opacity: 1;
+  }
+}
+.panel-in {
+  animation: slideIn 0.24s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.fade-in {
+  animation: fadeIn 0.18s ease-out both;
+}
